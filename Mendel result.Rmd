@@ -1,0 +1,63 @@
+---
+title: "Mendelian Histogram"
+output: html_document
+---
+
+```{r, echo = F}
+mendel <- read.table("mendel.result.c22.txt", header = T)
+
+
+```
+
+* Total number of rows in mendelian error data: `r nrow(mendel)`
+* Total number of unique positions: `r length(unique(mendel$POS))`
+* Total number of unique families: `r length(unique(mendel$FAMILY))`. Note that the total number of families in the original filtered data is 332 (996/3). 
+
+```{r, echo = F}
+a <- as.data.frame(sort(table(mendel$FAMILY)))
+hist(mendel$POS, breaks = 40, xlab = "Positions", main = "Fig 1. Histogram of positions")
+hist(a$Freq, main = "Fig 2. Histogram of positions by family", xlab = "# of positions", ylab = "# of family", breaks = 100)
+
+```
+
+## family outliners
+
+```{r, echo = F}
+head(sort(table(mendel$FAMILY), decreasing = T), 5)
+```
+
+## Try removing family outliners to check for positions
+```{r, echo =F}
+b <- head(sort(table(mendel$FAMILY), decreasing = T), 5)
+mendel.family <- mendel[!mendel$FAMILY %in% names(b), ]
+
+hist(mendel$POS, breaks = 40, xlab = "Positions", main = "Fig 1. Histogram of positions")
+hist(mendel.family$POS, breaks = 40, xlab = "Positions", main = "Fig 3. Histogram of positions (family outliners removed)")
+
+```
+
+##Try removing position outliners to check for families
+
+```{r, echo = F}
+##region: 129340000 - 129360000, 129720000-129780000, 130160000-130180000
+mendel.position <- mendel[! (mendel$POS >= 129340000  & mendel$POS <= 129360000), ]
+mendel.position <- mendel.position[! (mendel.position$POS >= 129720000  & mendel.position$POS <= 129780000), ]
+mendel.position <- mendel.position[! (mendel.position$POS >= 130160000  & mendel.position$POS <= 130180000), ]
+c <- as.data.frame(sort(table(mendel.position$FAMILY)))
+
+hist(a$Freq, main = "Fig 2. Histogram of positions by family", xlab = "# of positions", ylab = "# of family", breaks = 100)
+hist(c$Freq, main = "Fig 4. Histogram of positions by family (position outliner removed)", xlab = "# of positions", ylab = "# of family", breaks = 100)
+```
+
+##check for extreme family by position
+```{r}
+target.position <- mendel[mendel$POS >= 129720000  & mendel$POS <= 129780000, ]
+b <- as.data.frame(sort(table(target.position$FAMILY)))
+hist(b$Freq, breaks = 30, main = "Fig 5. Histogram of family count for targeted positions", xlab = "# of positions", ylab = "# of family")
+
+tail(sort(table(target.position$FAMILY)))
+
+
+
+```
+

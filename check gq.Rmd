@@ -1,0 +1,48 @@
+---
+title: "check gq"
+output: html_document
+---
+
+```{r, warning = F, echo = F, message = F}
+library(data.table)
+gq.8q24 <- fread("GQ.8q24.txt", header = T)
+
+##change GQ call into numeric
+gq.8q24 <- data.frame(sapply(gq.8q24, function(x) as.numeric(x)))
+
+##get avg gq by each position
+avg.row <- rowMeans(gq.8q24[,3:998], na.rm = T)
+
+##flag Index
+inx <- which(gq.8q24$POS >= 129720000 & gq.8q24$POS <= 129780000 )
+
+
+h1 <- hist(avg.row, breaks = 100, plot=FALSE)
+h1$counts=h1$counts/sum(h1$counts)
+
+h2 <- hist(avg.row[inx], breaks = 100, plot=FALSE)
+h2$counts=h2$counts/sum(h2$counts)
+
+h3 <- hist(avg.row[-inx], breaks = 100, plot=FALSE)
+h3$counts=h3$counts/sum(h3$counts)
+
+plot(h1, main = "Histogram of avg GQ for all positions", xlab = "Avg GQ", ylim = c(0, 0.14))
+plot(h2, main = "Histogram of avg GQ for outliner positions ", xlab = "Avg GQ", ylim = c(0, 0.14))
+plot(h3, main = "Histogram of avg GQ excluding outliner positions ", xlab = "Avg GQ", ylim = c(0, 0.14))
+```
+
+
+###check avg GQ for family
+```{r, echo = F, message=F}
+avg.col <- colMeans(gq.8q24[,3:998], na.rm = T)
+
+##flag outliner family
+out.family <- c("H_TZ.MD0280.MD0280", "H_TZ.MD0282.MD0282", "H_TZ.MD0281.MD0281", "H_TZ.MD0031.MD0031", "H_TZ.MD0033.MD0033", "H_TZ.MD0032.MD0032", "H_TZ.IA2650.IA2650", "H_TZ.IA2651.IA2651", "H_TZ.IA2652.IA2652", "H_TZ.PA2062.PA2062", "H_TZ.PA2063.PA2063", "H_TZ.PA2064.PA2064", "H_TZ.IA2836.IA2836", "H_TZ.IA2837.IA2837", "H_TZ.IA2838.IA2838") 
+
+inx2 <- which(colnames(gq.8q24) %in% out.family)
+
+avg.col[inx2-2]
+
+
+```
+
